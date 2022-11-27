@@ -3,6 +3,7 @@ name: my-app-ci
 on:
   push:
     branches:
+  workflow_call:
 
 jobs:
   lint:
