@@ -1,0 +1,82 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is application which takes input number and return to user the highest prime number",
+        "title": "My-application",
+        "contact": {
+            "name": "Van Bien",
+            "email": "vanbien2402@gmail.com"
+        },
+        "version": "1.0"
+    },
+    "host": "52.200.150.234:8080",
+    "paths": {
+        "/heath_check": {
+            "get": {
+                "description": "Heath Check",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Heath Check",
+                "responses": {
+                    "200": {
+                        "description": "connected!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/prime_number": {
+            "get": {
+                "description": "Get input number and return the highest prime number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "FindHighestPrimeNumber",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "positive number",
+                        "name": "inputNumber",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The highest prime number lower than 10 is 7",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Please enter a positive integer.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "There is not any prime number lower than 2",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,55 @@
+host: 52.200.150.234:8080
+info:
+  contact:
+    email: vanbien2402@gmail.com
+    name: Van Bien
+  description: This is application which takes input number and return to user the
+    highest prime number
+  title: My-application
+  version: "1.0"
+paths:
+  /heath_check:
+    get:
+      consumes:
+      - application/json
+      description: Heath Check
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: connected!
+          schema:
+            type: string
+      summary: Heath Check
+  /prime_number:
+    get:
+      consumes:
+      - application/json
+      description: Get input number and return the highest prime number
+      parameters:
+      - description: positive number
+        in: query
+        name: inputNumber
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The highest prime number lower than 10 is 7
+          schema:
+            type: string
+        "400":
+          description: Please enter a positive integer.
+          schema:
+            type: string
+        "404":
+          description: There is not any prime number lower than 2
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: FindHighestPrimeNumber
+swagger: "2.0"
