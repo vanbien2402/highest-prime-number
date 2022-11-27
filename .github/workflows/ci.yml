@@ -1,0 +1,40 @@
+name: my-app-ci
+
+on:
+  push:
+    branches:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.17'
+
+      - name: checkout source code
+        uses: actions/checkout@v3
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.32.2
+  unit-test:
+    strategy:
+      matrix:
+        go-version: [ 1.17.x, 1.18.x ]
+        platform: [ ubuntu-latest]
+
+    runs-on: ${{matrix.platform}}
+    steps:
+      - name: setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{matrix.go-version}}
+
+      - name: checkout source code
+        uses: actions/checkout@v3
+
+      - name: test
+        run: go test ./...
