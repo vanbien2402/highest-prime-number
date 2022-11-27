@@ -46,12 +46,12 @@ jobs:
           # Build a docker image
           docker build \
           --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_LATEST .
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_LATEST"
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_LATEST" >> $GITHUB_ENV
 
       - name: Push docker image to ECR
         id: push-ecr
         run: |
-          docker push ${{ steps.build-image.outputs.image }}
+          docker push ${{ env.image }}
 
       - name: logout
         if: always()
@@ -63,7 +63,7 @@ jobs:
         with:
           task-definition: ./.github/workflows/task-definition-config.json
           container-name: my-app-container
-          image: ${{ steps.build-image.outputs.image }}
+          image: ${{ env.image }}
 
       - name: deploy Amazon ECS task definition
         id: deploy

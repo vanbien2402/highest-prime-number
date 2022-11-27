@@ -2,7 +2,8 @@ name: my-app-ci
 
 on:
   push:
-    branches:
+    branches-ignore:
+      - 'deployment/develop'
   workflow_call:
 
 jobs:
