@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  my-app:
+    build:
+      dockerfile: /Dockerfile
+    image: 988070567160.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
+    ports:
+      - "8080:8080"
