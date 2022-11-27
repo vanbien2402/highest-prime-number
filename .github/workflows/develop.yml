@@ -1,0 +1,75 @@
+name: my-app-develop-cicd
+
+on:
+  push:
+    branches:
+      - "deployment/develop"
+
+permissions: write-all
+
+jobs:
+  # run ci
+  run-ci:
+    uses: ./.github/workflows/ci.yml
+
+  dev-deploy:
+    needs:
+      - run-ci
+    if:
+      contains('refs/heads/deployment/develop', github.ref)
+    timeout-minutes: 30
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
+          role-duration-seconds: 1200
+
+      - run: aws sts get-caller-identity
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build image
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: my-app
+          IMAGE_TAG_LATEST: latest
+        run: |
+          # Build a docker image
+          docker build \
+          --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_LATEST .
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_LATEST"
+
+      - name: Push docker image to ECR
+        id: push-ecr
+        run: |
+          docker push ${{ steps.build-image.outputs.image }}
+
+      - name: logout
+        if: always()
+        run: docker logout ${{ steps.login-ecr.outputs.registry }}
+
+      - name: modify task definition
+        id: render-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ./.github/workflows/task-definition-config.json
+          container-name: my-app-container
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: deploy Amazon ECS task definition
+        id: deploy
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+          cluster: cluster-my-app-api
+          service: my-app-container-service
+          wait-for-service-stability: true
